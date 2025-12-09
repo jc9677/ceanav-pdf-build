@@ -30,13 +30,24 @@ jobs:
             libbz2-dev libz-dev libssl-dev libcurl4-openssl-dev \
             libxml2-dev libgdal-dev libgeos-dev libproj-dev libudunits2-dev
 
+      - name: Ensure graphicsutils is available (CRAN/r-universe/GitHub)
+        run: |
+          R -q -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes', repos='https://cloud.r-project.org')"
+          R -q -e "if (!requireNamespace('graphicsutils', quietly = TRUE)) {
+                     repos <- c('https://cloud.r-project.org', 'https://insileco.r-universe.dev');
+                     try(install.packages('graphicsutils', repos = repos, dependencies = TRUE), silent = TRUE)
+                   }"
+          R -q -e "if (!requireNamespace('graphicsutils', quietly = TRUE)) remotes::install_github('inSileco/graphicsutils')"
+
+      - name: Configure R repositories
+        run: |
+          echo "options(repos = c(CRAN='https://cloud.r-project.org', insileco='https://insileco.r-universe.dev'))" >> ~/.Rprofile
+
       - name: Install R package dependencies (cached)
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 1
-          use-public-rspm: true
-          extra-packages: any::bookdown
-          needs: book
+          extra-packages: any::bookdown,any::graphicsutils
 
       - name: Cache TinyTeX
         uses: actions/cache@v4
