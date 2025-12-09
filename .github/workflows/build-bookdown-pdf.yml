@@ -29,6 +29,7 @@ jobs:
             libfontconfig1-dev libfreetype6-dev libpng-dev \
             libbz2-dev libz-dev libssl-dev libcurl4-openssl-dev \
             libxml2-dev libgdal-dev libgeos-dev libproj-dev libudunits2-dev
+          sudo apt-get install -y --no-install-recommends inkscape librsvg2-bin poppler-utils
 
       - name: Ensure graphicsutils is available (CRAN/r-universe/GitHub)
         run: |
@@ -54,6 +55,18 @@ jobs:
         with:
           path: ~/.TinyTeX
           key: ${{ runner.os }}-tinytex-${{ hashFiles('report_fr/_bookdown.yml', 'report_en/_bookdown.yml') }}
+
+      - name: Vendor remote badge image(s) locally
+        run: |
+          mkdir -p man/figures
+          wget -q -O man/figures/lifecycle-experimental-orange.svg https://img.shields.io/badge/lifecycle-experimental-orange.svg
+          mkdir -p report_fr/contenu/annexes report_en/contenu/annexes
+          cp man/figures/lifecycle-experimental-orange.svg report_fr/contenu/annexes/
+          cp man/figures/lifecycle-experimental-orange.svg report_en/contenu/annexes/
+          # Replace remote badge references with local file paths
+          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|man/figures/lifecycle-experimental-orange.svg|g" README.Rmd || true
+          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.svg|g" report_fr/contenu/annexes/annexe03-ceanav.Rmd || true
+          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.svg|g" report_en/contenu/annexes/annexe03-ceanav.Rmd || true
 
       - name: Install TinyTeX
         run: |
