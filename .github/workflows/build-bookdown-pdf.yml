@@ -73,6 +73,10 @@ jobs:
           
           # Replace all .svg references with .png in Rmd files
           find . -name "*.Rmd" -exec sed -i 's|\.svg|.png|g' {} \; || true
+          
+          # Replace remote badge URLs with local copies for LaTeX
+          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/lifecycle-experimental-orange\.png|man/figures/lifecycle-experimental-orange.png|g' {} \; || true
+          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/status-preliminary-blue\.png|man/figures/status-preliminary-blue.png|g' {} \; || true
 
       - name: Install TinyTeX
         run: |
