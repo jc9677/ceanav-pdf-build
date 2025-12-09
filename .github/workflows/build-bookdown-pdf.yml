@@ -33,6 +33,7 @@ jobs:
         run: |
           R -e "install.packages('remotes', repos='https://cloud.r-project.org')"
           R -e "remotes::install_deps(dependencies = TRUE, repos='https://cloud.r-project.org')"
+          R -e "install.packages('bookdown', repos='https://cloud.r-project.org')"
 
       - name: Install TinyTeX
         run: |
