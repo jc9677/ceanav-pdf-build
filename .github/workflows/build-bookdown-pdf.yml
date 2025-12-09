@@ -65,12 +65,9 @@ jobs:
           done
           
           # Download remote badges as PNG directly (shields.io supports .png)
-          mkdir -p man/figures report_fr report_en report_fr/contenu/annexes report_en/contenu/annexes
+          mkdir -p man/figures report_fr/contenu/annexes report_en/contenu/annexes
           wget -q -O man/figures/lifecycle-experimental-orange.png "https://img.shields.io/badge/lifecycle-experimental-orange.png" || true
           wget -q -O man/figures/status-preliminary-blue.png "https://img.shields.io/badge/status-preliminary-blue.png" || true
-          wget -q -O man/figures/zone-fluvial-brightgreen.png "https://img.shields.io/badge/Zone-Fluvial-brightgreen.png" || true
-          cp man/figures/*.png report_fr/ 2>/dev/null || true
-          cp man/figures/*.png report_en/ 2>/dev/null || true
           cp man/figures/*.png report_fr/contenu/annexes/ 2>/dev/null || true
           cp man/figures/*.png report_en/contenu/annexes/ 2>/dev/null || true
           
@@ -78,9 +75,8 @@ jobs:
           find . -name "*.Rmd" -exec sed -i 's|\.svg|.png|g' {} \; || true
           
           # Replace remote badge URLs with local copies for LaTeX
-          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/lifecycle-experimental-orange\.png|lifecycle-experimental-orange.png|g' {} \; || true
-          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/status-preliminary-blue\.png|status-preliminary-blue.png|g' {} \; || true
-          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/Zone-Fluvial-brightgreen\.png|zone-fluvial-brightgreen.png|g' {} \; || true
+          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/lifecycle-experimental-orange\.png|man/figures/lifecycle-experimental-orange.png|g' {} \; || true
+          find . -name "*.Rmd" -exec sed -i 's|https://img.shields.io/badge/status-preliminary-blue\.png|man/figures/status-preliminary-blue.png|g' {} \; || true
 
       - name: Install TinyTeX
         run: |
@@ -90,12 +86,16 @@ jobs:
       - name: Build French PDF
         run: |
           R -e "bookdown::render_book('report_fr/index.Rmd','bookdown::pdf_book', config_file='report_fr/_bookdown.yml')"
+          mkdir -p report_fr/_bookdown_output
+          cp docs/bookdown.pdf report_fr/_bookdown_output/bookdown.pdf
         env:
           TZ: UTC
 
       - name: Build English PDF
         run: |
           R -e "bookdown::render_book('report_en/index.Rmd','bookdown::pdf_book', config_file='report_en/_bookdown.yml')"
+          mkdir -p report_en/_bookdown_output
+          cp docs/bookdown.pdf report_en/_bookdown_output/bookdown.pdf
 
       - name: Upload PDFs as artifacts
         uses: actions/upload-artifact@v4
