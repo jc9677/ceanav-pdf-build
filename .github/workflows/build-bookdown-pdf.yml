@@ -60,13 +60,15 @@ jobs:
         run: |
           mkdir -p man/figures
           wget -q -O man/figures/lifecycle-experimental-orange.svg https://img.shields.io/badge/lifecycle-experimental-orange.svg
+          # Convert SVG to PDF for LaTeX compatibility
+          rsvg-convert -f pdf -o man/figures/lifecycle-experimental-orange.pdf man/figures/lifecycle-experimental-orange.svg
           mkdir -p report_fr/contenu/annexes report_en/contenu/annexes
-          cp man/figures/lifecycle-experimental-orange.svg report_fr/contenu/annexes/
-          cp man/figures/lifecycle-experimental-orange.svg report_en/contenu/annexes/
+          cp man/figures/lifecycle-experimental-orange.pdf report_fr/contenu/annexes/
+          cp man/figures/lifecycle-experimental-orange.pdf report_en/contenu/annexes/
           # Replace remote badge references with local file paths
-          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|man/figures/lifecycle-experimental-orange.svg|g" README.Rmd || true
-          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.svg|g" report_fr/contenu/annexes/annexe03-ceanav.Rmd || true
-          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.svg|g" report_en/contenu/annexes/annexe03-ceanav.Rmd || true
+          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|man/figures/lifecycle-experimental-orange.pdf|g" README.Rmd || true
+          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.pdf|g" report_fr/contenu/annexes/annexe03-ceanav.Rmd || true
+          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.pdf|g" report_en/contenu/annexes/annexe03-ceanav.Rmd || true
 
       - name: Install TinyTeX
         run: |
