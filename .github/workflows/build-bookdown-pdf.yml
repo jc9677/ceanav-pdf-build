@@ -56,19 +56,23 @@ jobs:
           path: ~/.TinyTeX
           key: ${{ runner.os }}-tinytex-${{ hashFiles('report_fr/_bookdown.yml', 'report_en/_bookdown.yml') }}
 
-      - name: Vendor remote badge image(s) locally
+      - name: Convert all SVG images to PNG for LaTeX compatibility
         run: |
-          mkdir -p man/figures
-          wget -q -O man/figures/lifecycle-experimental-orange.svg https://img.shields.io/badge/lifecycle-experimental-orange.svg
-          # Convert SVG to PDF for LaTeX compatibility
-          rsvg-convert -f pdf -o man/figures/lifecycle-experimental-orange.pdf man/figures/lifecycle-experimental-orange.svg
-          mkdir -p report_fr/contenu/annexes report_en/contenu/annexes
-          cp man/figures/lifecycle-experimental-orange.pdf report_fr/contenu/annexes/
-          cp man/figures/lifecycle-experimental-orange.pdf report_en/contenu/annexes/
-          # Replace remote badge references with local file paths
-          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|man/figures/lifecycle-experimental-orange.pdf|g" README.Rmd || true
-          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.pdf|g" report_fr/contenu/annexes/annexe03-ceanav.Rmd || true
-          sed -i "s|https://img.shields.io/badge/lifecycle-experimental-orange.svg|lifecycle-experimental-orange.pdf|g" report_en/contenu/annexes/annexe03-ceanav.Rmd || true
+          # Convert any local SVG files to PNG
+          find . -name "*.svg" -type f | while read svg; do
+            png="${svg%.svg}.png"
+            rsvg-convert -f png -o "$png" "$svg" 2>/dev/null || true
+          done
+          
+          # Download remote badges as PNG directly (shields.io supports .png)
+          mkdir -p man/figures report_fr/contenu/annexes report_en/contenu/annexes
+          wget -q -O man/figures/lifecycle-experimental-orange.png "https://img.shields.io/badge/lifecycle-experimental-orange.png" || true
+          wget -q -O man/figures/status-preliminary-blue.png "https://img.shields.io/badge/status-preliminary-blue.png" || true
+          cp man/figures/*.png report_fr/contenu/annexes/ 2>/dev/null || true
+          cp man/figures/*.png report_en/contenu/annexes/ 2>/dev/null || true
+          
+          # Replace all .svg references with .png in Rmd files
+          find . -name "*.Rmd" -exec sed -i 's|\.svg|.png|g' {} \; || true
 
       - name: Install TinyTeX
         run: |
